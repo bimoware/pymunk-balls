@@ -13,17 +13,11 @@ pygame.font.init()
 pygame.display.set_caption("Jeu 1")
 
 # Unmodifiable
-RATIO = 9/16
-WIDTH = 960  # 1920/2 # 480
-SIZE = [WIDTH*RATIO, WIDTH]
+SIZE = [540, 960]
 FPS = 60
 STEPS_PER_S = 10
-NGON = 100
 FONT = "minecraft"
-CIRCLE_RADIUS = 200
-CIRCLE_THICKNESS=10
 MP3 = pygame.mixer.Sound("./ball.mp3")
-BALL_ELASTICITY = .95
 my_font = pygame.font.SysFont(FONT, 40)
 collisions = 0
 space = pymunk.Space()
@@ -35,12 +29,12 @@ lines = []
 then = time.time()
 
 
-def add_ball(coor: list[int], color=None):
+def add_ball(coor, color=None):
     ballObj = pymunk.Body(pymunk.Body.DYNAMIC)
     ballObj.position = (coor[0], coor[1])
     ball = pymunk.Circle(ballObj, 10)
     ball.density = 1
-    ball.elasticity = BALL_ELASTICITY
+    ball.elasticity = .99
     balls.append([ball, color or random_color()])
     space.add(ballObj, ball)
 
@@ -48,42 +42,34 @@ def add_ball(coor: list[int], color=None):
         exit(0)
 
 
-def add_balls():
-    ball_coor = [
-        [int(SIZE[0]/2)-randint(-30, 30), int(SIZE[1]/2) - randint(-30, 30)],
-        [int(SIZE[0]/2)-randint(-30, 30), int(SIZE[1]/2) - randint(-30, 30)]
-    ]
-    for ball in ball_coor:
-        add_ball(ball)
-
-
-def add_circle():
+def add_circle(sides,radius,position,thickness,exclude = []):
     arcObj = pymunk.Body(0, 0, pymunk.Body.STATIC)
     arcObj.position = (0, 0)
 
     arc_coor = []
-    for i in range(0, NGON):
+    for i in range(0, sides):
         arc_coor.append((
-            SIZE[0]/2 + CIRCLE_RADIUS*cos(2*pi * (i/NGON)),
-            SIZE[1]/2 + CIRCLE_RADIUS*sin(2*pi * (i/NGON))
+            position[0] + radius*cos(2*pi * (i/sides)),
+            position[1] + radius*sin(2*pi * (i/sides))
         ))
 
     for i in range(len(arc_coor)):
-        # if i > 10 and i < 12:
-        #     continue
+        if i in exclude: continue
         line = pymunk.Segment(arcObj,
-            arc_coor[i],  # PB
-            arc_coor[0 if (i == (len(arc_coor)-1)) else (i+1)],CIRCLE_THICKNESS)
+                              arc_coor[i],  # PB
+                              arc_coor[0 if (i == (len(arc_coor)-1)) else (i+1)], thickness)
         line.elasticity = 1
         lines.append(line)
     space.add(arcObj, *lines)
+    return arcObj
 
 
-def random_coor():
-    r = random()
+def random_coor_inside_circle(position,radius):
+    r1 = random()
+    r2 = random()
     return [
-        SIZE[0]/2 + random()*CIRCLE_RADIUS*cos(r * 2*pi),
-        SIZE[1]/2 + random()*CIRCLE_RADIUS*sin(r * 2*pi)
+        position[0] + r2*radius*cos(r1 * 2*pi),
+        position[1] + r2*radius*sin(r1 * 2*pi)
     ]
 
 
@@ -127,8 +113,6 @@ def count_collision():
                 if len(balls[a][0].shapes_collide(balls[b][0]).points):
                     MP3.play()
                     collisions += 1
-                    # if COLLISIONS % 10 == 0:
-                    #     add_ball(random_coor(),random_color())
 
 
 def draw_balls():
@@ -148,6 +132,7 @@ def draw_circle():
             lines[i].b,
             int(lines[i].radius)
         )
+
 def draw_text():
     duration = time.time() - then
     # integer minutes & seconds
@@ -187,6 +172,17 @@ def game_loop():
         pygame.display.flip()
         clock.tick(FPS * STEPS_PER_S)
 
-add_circle()
-add_balls()
+radius = 200
+circle_position = list(map(lambda x : int(x/2),SIZE))
+add_circle(
+    sides=100,
+    radius=radius,
+    position=circle_position,
+    thickness=10
+)
+for _ in range(2):
+    add_ball(
+        random_coor_inside_circle(circle_position,200),
+        random_color()
+    )
 game_loop()
