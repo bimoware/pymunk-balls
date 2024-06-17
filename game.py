@@ -42,7 +42,7 @@ def add_ball(coor, color=None):
         exit(0)
 
 
-def add_circle(sides,radius,position,thickness,exclude = []):
+def add_circle(sides, radius, position, thickness, exclude=[]):
     arcObj = pymunk.Body(0, 0, pymunk.Body.STATIC)
     arcObj.position = (0, 0)
 
@@ -54,7 +54,8 @@ def add_circle(sides,radius,position,thickness,exclude = []):
         ))
 
     for i in range(len(arc_coor)):
-        if i in exclude: continue
+        if i in exclude:
+            continue
         line = pymunk.Segment(arcObj,
                               arc_coor[i],  # PB
                               arc_coor[0 if (i == (len(arc_coor)-1)) else (i+1)], thickness)
@@ -64,7 +65,7 @@ def add_circle(sides,radius,position,thickness,exclude = []):
     return arcObj
 
 
-def random_coor_inside_circle(position,radius):
+def random_coor_inside_circle(position, radius):
     r1 = random()
     r2 = random()
     return [
@@ -133,6 +134,7 @@ def draw_circle():
             int(lines[i].radius)
         )
 
+
 def draw_text():
     duration = time.time() - then
     # integer minutes & seconds
@@ -156,6 +158,7 @@ def draw_text():
         )
         screen.blit(text_surface, (50, SIZE[1]/5 - 40*i))
 
+
 def game_loop():
     while True:
         check_events()
@@ -172,8 +175,9 @@ def game_loop():
         pygame.display.flip()
         clock.tick(FPS * STEPS_PER_S)
 
+
 radius = 200
-circle_position = list(map(lambda x : int(x/2),SIZE))
+circle_position = list(map(lambda x: int(x/2), SIZE))
 add_circle(
     sides=100,
     radius=radius,
@@ -182,8 +186,8 @@ add_circle(
 )
 for _ in range(2):
     add_ball(
-        random_coor_inside_circle(circle_position,200),
+        random_coor_inside_circle(circle_position, 200),
         random_color()
     )
 
-game_loop() 
+game_loop()
