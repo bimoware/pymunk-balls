@@ -185,4 +185,5 @@ for _ in range(2):
         random_coor_inside_circle(circle_position,200),
         random_color()
     )
-game_loop()
+
+game_loop() 
