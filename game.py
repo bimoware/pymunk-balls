@@ -146,8 +146,7 @@ def draw_text():
 
     texts = [
         'Number of collisions: '+str(collisions),
-        'Time: ' + " ".join([mins, secs]),
-        'bimoware on Github',
+        'Time:' + " ".join([mins, secs])
     ]
 
     for i in range(len(texts)):
